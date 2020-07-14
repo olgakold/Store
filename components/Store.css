@@ -1,0 +1,65 @@
+﻿.Top {
+  background-color: #d7ebfc;
+  position: absolute;
+  top: 8px;
+  right: 0px;
+  width: 50%;
+  height: 30px;
+}
+
+.Top :first-child {
+  padding-top: 5px;
+  font-size: large;
+  font-family: 'Times New Roman', Times, serif;
+}
+
+.NameStore {
+  width: 100%;
+  display: inline-block;
+}
+
+.LogIn {
+  position: absolute;
+  right: 8px;
+  top: 5px
+  
+}
+
+.Buttons {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  
+}
+.SignIn label input {
+  width: 80px;
+}
+.SignIn {
+  position: absolute;
+  right: 8px;
+  top: 43px;  
+}
+
+.SignUp label input {
+  width: 80px;
+}
+.SignUp {
+  position: absolute;
+  right: 8px;
+  top: 43px;  
+}
+.SignUpBut {
+  position: absolute;
+  right: 63px;
+  top: 5px
+ 
+}
+.Filter {
+  position: absolute;
+  right: 8px;
+  top: 66px;
+}
+
+table {
+  width: 100%;
+}
+
