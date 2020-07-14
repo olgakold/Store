@@ -1,17 +1,16 @@
 ﻿import React from 'react';
 import renderer from 'react-test-renderer';
 
-import Login from '../components/LogIn';
+import Page_Start from '../pages/Page_Start';
 
-test('работа Login', ()=>{
+test('работа Page_Start', ()=>{
 
-  let viewLogin=0
+  
   const component = renderer.create(
-        <Login viewLogin={viewLogin}/>
+        <Page_Start/>
   ); 
   let componentTree=component.toJSON();
   expect(componentTree).toMatchSnapshot();
-    
+  
 });
-
 
