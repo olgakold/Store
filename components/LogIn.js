@@ -18,60 +18,119 @@ class Login extends React.Component {
       viewLogin: this.props.viewLogin
       
     }
- 
-  
+
     save = () =>{
 
       if (this.state.newLog===""||this.state.newPassword===""){
         alert ('Заполните все поля')
       }
       else {
-      
-          let formData = new FormData();
-          let newLog=this.state.newLog
-          let newPassword=this.state.newPassword
+        let formData = new FormData();
+        let updatePassword=Math.random();
+        formData.append('f', 'LOCKGET');
+        formData.append('n', 'KOLDENKOVA_Store_Clients');
+        formData.append('p', updatePassword);  
+        isoFetch("https://fe.it-academy.by/AjaxStringStorage2.php", {
+          method: 'post',
+          headers: {
+              "Accept": "application/json",
+          },
+          body: formData       
           
-          formData.append('f', 'INSERT');
-          formData.append('n', 'KOLDENKOVA_Store_'+newLog);
-          formData.append('v', newPassword);  
-          
-         isoFetch("https://fe.it-academy.by/AjaxStringStorage2.php", {
-              method: 'post',
-              headers: {
-                  "Accept": "application/json",
-              },
-              body: formData       
-              
-          })
-         
-              .then( response => { 
-                  if (!response.ok)
-                      throw new Error("fetch error " + response.status);                      
-                  else
-                      return response.json() ; 
-              })
-             .then( data => {
-              this.fetchSuccess(data);
+        })
+        .then( response => { 
+          if (!response.ok)
+              throw new Error("fetch error " + response.status);                      
+          else
+              return response.json() ; 
+        })
+        .then( data => {
+          data = JSON.parse(data.result)
+          this.fetchSuccess(data, updatePassword);
+       })
+       .catch( error => {
+          this.fetchError(error.message);
+       })
+     }
+   }
 
-             })
-              .catch( error => {
-                console.log(error.message);}
-               
-              )
-    }
-    
-  }
+    fetchSuccess = (data, updatePassword) => { 
+      let newLog=this.state.newLog
+      let newPassword=this.state.newPassword      
+      let formDataUPDATE = new FormData();
+      formDataUPDATE.append('f', 'UPDATE');
+      formDataUPDATE.append('n', 'KOLDENKOVA_Store_Clients');      
+      formDataUPDATE.append('p', updatePassword);    
+
+      if (newLog in data){
+        formDataUPDATE.append('v', JSON.stringify(data));
+        alert ('Данное имя уже использовано')
+
+        isoFetch("https://fe.it-academy.by/AjaxStringStorage2.php", {
+          method: 'post',
+          headers: {
+              "Accept": "application/json",
+          },
+          body: formDataUPDATE               
+        })    
+
+        .then( response => { 
+          if (!response.ok){
+               throw new Error("fetch error " + response.status); }                     
+          else
+              return response.json() ; 
+        }) 
   
+        .then( data => {        
+              console.log (data) 
+        })
 
-   fetchSuccess = (data) => {   
-     
-     if (data.result===''&&data.error==='error - string already exists'){
-       alert ('Данное имя уже использовано')
-     }
-     if (data.result==='OK'){
+        .catch( error => {
+              this.fetchError(error.message);
+        })
+      }      
+        
+
+      
+
+      else {
+
+        data[newLog]=newPassword
+        formDataUPDATE.append('v', JSON.stringify(data));
+
+        isoFetch("https://fe.it-academy.by/AjaxStringStorage2.php", {
+        method: 'post',
+        headers: {
+            "Accept": "application/json",
+        },
+        body: formDataUPDATE       
+        
+        })       
+        .then( response => { 
+        if (!response.ok){
+            throw new Error("fetch error " + response.status); }                     
+        else
+            return response.json() ; 
+        })
+
+
+       .then( data => {        
+
+        this.fetchSuccessUPDATE(data, newLog);
+        })
+        .catch( error => {
+          this.fetchError(error.message);
+        })
+      }      
+    }
+
+    fetchSuccessUPDATE = (data, newLog)=>{
       voteEvents.emit('ESignIn');
-     }
-    };
+    }
+
+    fetchError = (error) =>{
+      console.log (error)
+    }
 
    inputLog =(EO)=>{
     let inLog=EO.target.value;
@@ -91,7 +150,7 @@ class Login extends React.Component {
       else {
       let formData = new FormData();
       formData.append('f', 'READ');
-      formData.append('n', 'KOLDENKOVA_Store_'+this.state.newLog);       
+      formData.append('n', 'KOLDENKOVA_Store_Clients');       
 
       isoFetch("https://fe.it-academy.by/AjaxStringStorage2.php", {
           method: 'post',
@@ -111,33 +170,33 @@ class Login extends React.Component {
                  return response.json(); 
           })
           .then( data => {
-           
-             data = data.result
-              this.fetchSuccessRead(data);
+                    
+             data = JSON.parse(data.result)
+              this.fetchSuccessRead(data, this.state.newLog, this.state.newPassword);
           })
-          .catch( error => {
-           
+          .catch( error => {           
              this.fetchErrorRead(error.message);
           })
         }
       }
 
 fetchErrorRead = (errorMessage) => {
-  alert('Вы не зарегистрированы. Пройдите регистрацию')
+  console.log (errorMessage)
 };
 
- fetchSuccessRead = (loadedData) => { 
-   
-   if (String(loadedData)!==String(this.state.newPassword)){
-     alert ('Вы ввели неверный пароль')
+ fetchSuccessRead = (loadedData, newLog, newPassword) => { 
+   if (!(newLog in loadedData)){
+    alert('Вы не зарегистрированы. Пройдите регистрацию')
    }
-   else {
-    voteEvents.emit('ESignIn');
+   else{
+     if (loadedData[newLog]!=newPassword) {
+       alert ('Вы ввели неверный пароль')
+     }
+     else {
+      voteEvents.emit('ESignIn');
+     }
    }
-   
- };
-
-
+  }
 
 signOut = () =>{
   voteEvents.emit('ESignOut');
@@ -177,6 +236,4 @@ signOut = () =>{
 }
 
 
-export default Login;  
-
-
+export default Login; 
