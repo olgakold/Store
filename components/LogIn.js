@@ -112,7 +112,7 @@ class Login extends React.Component {
           })
           .then( data => {
            
-             data = JSON.parse(data.result)
+             data = data.result
               this.fetchSuccessRead(data);
           })
           .catch( error => {
